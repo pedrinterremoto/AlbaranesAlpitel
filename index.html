@@ -1,12 +1,10 @@
+<!-- Versión con cabecera rediseñada según boceto -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alpitel ST</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon.png">
-  <meta name="theme-color" content="#ffffff">
   <style>
     body {
       font-family: sans-serif;
@@ -21,12 +19,14 @@
       padding: 1rem 2rem;
       background: white;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      gap: 2rem;
     }
     .logo {
-      max-height: 80px;
-      max-width: 150px;
+      max-height: 100px;
+      max-width: 100%;
       height: auto;
-      width: auto;
+      width: 100%;
+      object-fit: contain;
     }
     .datos-empresa {
       border: 1px solid #ccc;
@@ -43,6 +43,9 @@
       padding: 1rem;
       background: white;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
     }
     input, textarea {
       width: 100%;
@@ -73,16 +76,29 @@
       font-size: 1rem;
       cursor: pointer;
     }
+    .albaran-card {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin: 1rem 0;
+      background: #fafafa;
+      border-radius: 5px;
+    }
+    .albaran-card p {
+      margin: 0.3rem 0;
+    }
     .center {
       text-align: center;
     }
   </style>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="theme-color" content="#ffffff">
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div><img src="logo-alpitel.png" alt="Logo de la empresa" class="logo"></div>
-      <div class="datos-empresa">
+      <div style="flex: 1;"><img src="logo-alpitel.png" alt="Logo de la empresa" class="logo"></div>
+      <div class="datos-empresa" style="flex: 1;">
         <strong>NBM Operador de telecomunicaciones S.L.U</strong><br>
         B09792169<br>
         C/. Manuela de Malasaña, 19<br>
@@ -90,7 +106,6 @@
         T: 973 988 139
       </div>
     </div>
-
     <h1>Formulario de Albarán - Alpitel ST</h1>
     <form id="albaran-form">
       <h2>Datos del Cliente</h2>
@@ -123,17 +138,44 @@
 
       <h2>Firma del Cliente</h2>
       <canvas id="signature-pad" width="300" height="150"></canvas>
-      <button type="button" onclick="clearSignature()">Borrar Firma</button>
+      <button type="button" id="clear-signature">Borrar Firma</button>
       <br><br>
       <button type="submit">Guardar Albarán</button>
     </form>
   </div>
 
+  <div class="container center">
+    <button onclick="enviarAlbaranesAlServidor()">Enviar todos los albaranes al servidor</button>
+    <button onclick="mostrarAlbaranesGuardados()">Ver albaranes guardados localmente</button>
+  </div>
+
+  <div class="container" id="lista-albaranes" style="display:none;">
+    <h2>Albaranes Guardados</h2>
+    <div id="albaranes-output"></div>
+  </div>
+
   <script>
     function clearSignature() {
       const canvas = document.getElementById("signature-pad");
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    document.getElementById("clear-signature").addEventListener("click", clearSignature);
+  </script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+            console.log('ServiceWorker registrado con éxito:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Fallo al registrar el ServiceWorker:', error);
+          });
+      });
     }
   </script>
 </body>
