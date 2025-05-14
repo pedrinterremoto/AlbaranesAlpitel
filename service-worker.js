@@ -1,3 +1,4 @@
+
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open('alpitel-cache-v1').then(cache => {
