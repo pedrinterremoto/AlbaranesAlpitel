@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orden de Trabajo</title>
+<link rel="stylesheet" href="style.css">
+</head><body><main>
+<h2>Orden de Trabajo</h2>
+<form id="ordenForm">
+  <label>Nombre del Cliente:</label>
+  <input type="text" name="nombre" required>
+  <label>Dirección:</label>
+  <input type="text" name="direccion" required>
+  <label>Descripción del Trabajo:</label>
+  <textarea name="descripcion" rows="4" required></textarea>
+  <label>Fecha:</label>
+  <input type="date" name="fecha" required>
+  <label>Firma del Cliente:</label>
+  <canvas id="firmaCanvas"></canvas>
+  <button type="button" onclick="limpiarFirma()">Limpiar Firma</button>
+  <button type="submit">Enviar Orden</button>
+</form></main>
+<script>
+const canvas = document.getElementById('firmaCanvas');
+const ctx = canvas.getContext('2d');
+let isDrawing = false;
+canvas.addEventListener('mousedown', e => {
+  isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY);
+});
+canvas.addEventListener('mousemove', e => {
+  if (isDrawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); }
+});
+canvas.addEventListener('mouseup', () => isDrawing = false);
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault(); isDrawing = true;
+  const touch = e.touches[0]; const rect = canvas.getBoundingClientRect();
+  ctx.beginPath(); ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault(); if (isDrawing) {
+    const touch = e.touches[0]; const rect = canvas.getBoundingClientRect();
+    ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top); ctx.stroke();
+  }
+});
+canvas.addEventListener('touchend', () => isDrawing = false);
+function limpiarFirma() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+document.getElementById('ordenForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  const datos = {
+    nombre: this.nombre.value,
+    direccion: this.direccion.value,
+    descripcion: this.descripcion.value,
+    fecha: this.fecha.value,
+    firma: canvas.toDataURL()
+  };
+  fetch('guardar_orden.php', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(datos)
+  }).then(r => r.json()).then(res => {
+    alert("Orden enviada correctamente. Código: " + res.codigo);
+  }).catch(err => alert("Error al enviar la orden."));
+});
+</script></body></html>
